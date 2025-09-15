@@ -24,9 +24,12 @@ async function getChannels(evt = null) {
         const res = await fetch(`http://api.sr.se/api/v2/channels?format=json&size=${numOfChannels}`);
 
         if (!res.ok) throw new Error(`Något gick fel vid HTTP anropet ${res.status}`)
+
         const data = await res.json();
         const channelsArr = data.channels;
-        console.log(channelsArr)
+
+        generateChannelsLinks(channelsArr) // Genererar li-taggar med title attribute och länkar
+
 
     } catch (err) {
         console.error(`Det gick inte att hämta kanaler ${err} `)
@@ -46,6 +49,38 @@ function debounce(func, delay) {
 }
 //Källa: https://www.freecodecamp.org/news/javascript-debounce-example/
 
-//Anropa funktion vid nytt värde
+//Anropa funktion när värdet ändras
 numFromInput.addEventListener("change", debounce(getChannels, 500));
 
+/*Funktionen */
+
+function generateChannelsLinks(arr) {
+    if (!Array.isArray(arr)) {
+        throw new Error("Datan måste vara en array med korrekt innehåll!");
+    }
+
+    parentLinks.innerHTML = "";  // Rensa li-element
+
+    const fragment = document.createDocumentFragment();
+
+    arr.forEach(obj => {
+        const liEl = document.createElement("li");
+
+        liEl.setAttribute("title", obj.tagline);
+
+        const aEl = document.createElement("a");
+
+        aEl.setAttribute("href", obj.scheduleurl);
+
+        aEl.textContent = obj.name;
+
+        liEl.style.maxWidth = "fit-content";  // Visa titletext när muspekaren är över länken
+
+        liEl.appendChild(aEl);
+
+        fragment.appendChild(liEl);
+    });
+
+    // Lägg till alla li-element på en gång i DOM
+    parentLinks.appendChild(fragment);
+}
