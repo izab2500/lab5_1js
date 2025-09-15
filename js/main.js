@@ -28,11 +28,11 @@ async function getChannels(evt = null) {
         const data = await res.json();
         const channelsArr = data.channels;
 
-        generateChannelsLinks(channelsArr) // Genererar li-taggar med title attribute och länkar
+        generateChannelsLinks(channelsArr); // Genererar li-taggar med title attribute och länkar
 
 
     } catch (err) {
-        console.error(`Det gick inte att hämta kanaler ${err} `)
+        console.error(`Det gick inte att hämta kanaler ${err} `);
     }
 }
 
@@ -45,15 +45,15 @@ function debounce(func, delay) {
     return function (...args) {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => func.apply(this, args), delay);
-    };
+    }
 }
 //Källa: https://www.freecodecamp.org/news/javascript-debounce-example/
 
 //Anropa funktion när värdet ändras
 numFromInput.addEventListener("change", debounce(getChannels, 500));
 
-/*Funktionen */
-
+/*Funktionen kontrollerar om argumentet är en array, rensar föregående li-element i #mainnavlist och genererar
+li-element med titel attribut, a-element med href attribut och placerar element i DOM*/
 function generateChannelsLinks(arr) {
     if (!Array.isArray(arr)) {
         throw new Error("Datan måste vara en array med korrekt innehåll!");
@@ -84,3 +84,16 @@ function generateChannelsLinks(arr) {
     // Lägg till alla li-element på en gång i DOM
     parentLinks.appendChild(fragment);
 }
+
+
+function getLink(evt) {
+    evt.preventDefault();
+
+    const target = evt.target;
+
+    if (target.tagName !== "A") return
+
+    console.log(target)
+}
+
+parentLinks.addEventListener("click", getLink)
