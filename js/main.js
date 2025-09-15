@@ -26,6 +26,7 @@ async function getChannels(evt = null) {
         if (!res.ok) throw new Error(`Något gick fel vid HTTP anropet ${res.status}`)
         const data = await res.json();
         const channelsArr = data.channels;
+        console.log(channelsArr)
 
     } catch (err) {
         console.error(`Det gick inte att hämta kanaler ${err} `)
@@ -35,6 +36,16 @@ async function getChannels(evt = null) {
 //Anropa när sida laddas med default parametern null
 getChannels();
 
+// Funktionen skjuter fram anropet på getChannels funtkionen med 500ms, när change eventet triggas
+function debounce(func, delay) {
+    let debounceTimer;
+    return function (...args) {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => func.apply(this, args), delay);
+    };
+}
+//Källa: https://www.freecodecamp.org/news/javascript-debounce-example/
+
 //Anropa funktion vid nytt värde
-numFromInput.addEventListener("change", getChannels);
+numFromInput.addEventListener("change", debounce(getChannels, 500));
 
