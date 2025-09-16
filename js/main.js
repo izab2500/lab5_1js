@@ -12,6 +12,7 @@
 //DOM 
 const parentLinks = document.querySelector("#mainnavlist")
 const numFromInput = document.querySelector("#numrows")
+const parentPrograms = document.querySelector("#info")
 
 
 /*Funktionen anropas när sidan laddas, för att ladda 10st data objekt i en array från Sveriges Radios api. Därefter anropas funktionen
@@ -26,6 +27,7 @@ async function getChannels(evt = null) {
         if (!res.ok) throw new Error(`Något gick fel vid HTTP anropet ${res.status}`)
 
         const data = await res.json();
+
         const channelsArr = data.channels;
 
         generateChannelsLinks(channelsArr); // Genererar li-taggar med title attribute och länkar
@@ -59,7 +61,7 @@ function generateChannelsLinks(arr) {
         throw new Error("Datan måste vara en array med korrekt innehåll!");
     }
 
-    parentLinks.innerHTML = "";  // Rensa li-element
+    parentLinks.innerHTML = "";  // Rensa ols li-element
 
     const fragment = document.createDocumentFragment();
 
@@ -85,15 +87,51 @@ function generateChannelsLinks(arr) {
     parentLinks.appendChild(fragment);
 }
 
-
-function getLink(evt) {
+// Funktionen triggas vid klick på länk och extraherar href-attributets värdet
+async function getLink(evt) {
     evt.preventDefault();
 
     const target = evt.target;
 
     if (target.tagName !== "A") return
 
-    console.log(target)
+   const programsArr = await getProgramsNowToMidnight(target.href)
+   console.log(programsArr)
 }
 
-parentLinks.addEventListener("click", getLink)
+parentLinks.addEventListener("click", getLink);
+
+
+async function getProgramsNowToMidnight(link) {
+    //Dagens datum och tid
+    const now = new Date();
+    // Tid nu i millisekunder
+    const nowMilliSec = now.getTime();
+
+    //Slutet av dagen
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+    //Representerar slutet av dagen i millisekunder
+    const endOfDayMilliSec = endOfDay.getTime();
+
+    try {
+        const res = await fetch(`${link}&format=json&pagination=false`);
+        if (!res.ok) throw new Error(`Fel vid HTTP-anropet ${res.status}`);
+
+        const data = await res.json();
+        const programArr = data.schedule;
+
+        const programs = programArr.filter(program => {
+            const startTimeMilliSec = Number(program.starttimeutc.replace(/\D/g, ""));
+            // Bara program som startar nu och fram till midnatt
+            if (startTimeMilliSec >= nowMilliSec && startTimeMilliSec <= endOfDayMilliSec) return true
+
+        });
+        return programs
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+
+
