@@ -12,7 +12,7 @@
 //DOM 
 const parentLinks = document.querySelector("#mainnavlist")
 const numFromInput = document.querySelector("#numrows")
-const parentPrograms = document.querySelector("#info")
+const parentProgramsInfo = document.querySelector("#info")
 
 
 /*Funktionen anropas när sidan laddas, för att ladda 10st data objekt i en array från Sveriges Radios api. Därefter anropas funktionen
@@ -87,7 +87,8 @@ function generateChannelsLinks(arr) {
     parentLinks.appendChild(fragment);
 }
 
-// Funktionen triggas vid klick på länk och extraherar href-attributets värdet
+/* Funktionen triggas vid klick på länk och extraherar href-attributets värdet. Anropar två funktioner
+där getProgramsNowToMidnight filterar programdata och den andra generera programinfo till gränsnittet.*/
 async function getLink(evt) {
     evt.preventDefault();
 
@@ -95,13 +96,16 @@ async function getLink(evt) {
 
     if (target.tagName !== "A") return
 
-   const programsArr = await getProgramsNowToMidnight(target.href)
-   console.log(programsArr)
+    const programsArr = await getProgramsNowToMidnight(target.href)
+    generateProgramsInfo(programsArr)
 }
 
 parentLinks.addEventListener("click", getLink);
 
 
+/*Funktionen skapar i millisekunder en tid nu och en tid som representerar slutet av dagen.
+Sedan hämtas data från Sverige Radio, där data är program. Ett filter appliceras på data för att
+endast returnera program som är i intervallet nutid upp till midnatt. Programen returneras. */
 async function getProgramsNowToMidnight(link) {
     //Dagens datum och tid
     const now = new Date();
@@ -133,5 +137,51 @@ async function getProgramsNowToMidnight(link) {
     }
 }
 
+/*Funktionen tar programdata från Sveriges radio som en array, skapar för varje iteration ett article-element,
+med barn-element som inkluderar data från Sveriges radios program som sänds nu och fram till midnatt*/
+function generateProgramsInfo(arr) {
+    parentProgramsInfo.innerHTML = ""
+    const fragment = document.createDocumentFragment()
+    arr.forEach(program => {
+        const article = document.createElement("article");
 
+        const h3 = document.createElement("h3");
+        h3.textContent = program.title;
+        article.appendChild(h3);
 
+        const h4 = document.createElement("h4");
+        h4.textContent = program.subtitle || "";
+        article.appendChild(h4);
+
+        const h5 = document.createElement("h5");
+        h5.textContent = convertTime(program.starttimeutc, program.endtimeutc);
+        article.appendChild(h5);
+
+        const p = document.createElement("p");
+        p.textContent = program.description;
+        article.appendChild(p);
+
+        fragment.appendChild(article);
+    })
+    parentProgramsInfo.appendChild(fragment)
+}
+
+//Funktionen konverter start- sluttider för program på formatet 00:00 och returnera en strängen
+function convertTime(startTime, endTime) {
+    // Extrahera millisekunder för start- och sluttid
+    const startTimeMilliSec = startTime.replace(/\D/g, "");
+    const endTimeMilliSec = endTime.replace(/\D/g, "");
+
+    //Radio program start- och slutdatum
+    const startDate = new Date(Number(startTimeMilliSec));
+    const endDate = new Date(Number(endTimeMilliSec));
+
+    //Omvandla timmar och minuter på formatet 00:00
+    const startTimeHours = String(startDate.getHours()).padStart(2, "0");
+    const startTimeMins = String(startDate.getMinutes()).padStart(2, "0");
+
+    const endTimeHours = String(endDate.getHours()).padStart(2, "0");
+    const endTimeMins = String(endDate.getMinutes()).padStart(2, "0");
+
+    return `Programmtider: ${startTimeHours}:${startTimeMins} - ${endTimeHours}:${endTimeMins}`;
+}
