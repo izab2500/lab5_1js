@@ -13,6 +13,8 @@
 const parentLinks = document.querySelector("#mainnavlist")
 const numFromInput = document.querySelector("#numrows")
 const parentProgramsInfo = document.querySelector("#info")
+const channelsList = document.querySelector("#playchannel")
+const playBtn = document.querySelector("#playbutton")
 
 
 /*Funktionen anropas när sidan laddas, för att ladda 10st data objekt i en array från Sveriges Radios api. Därefter anropas funktionen
@@ -30,7 +32,9 @@ async function getChannels(evt = null) {
 
         const channelsArr = data.channels;
 
-        generateChannelsLinks(channelsArr); // Genererar li-taggar med title attribute och länkar
+        generateChannelsLinks(channelsArr); //Genererar li-taggar med title attribute och länkar
+
+        generatePlayList(channelsArr) //Genererar option-element med värdet av en url - ljud
 
 
     } catch (err) {
@@ -140,8 +144,10 @@ async function getProgramsNowToMidnight(link) {
 /*Funktionen tar programdata från Sveriges radio som en array, skapar för varje iteration ett article-element,
 med barn-element som inkluderar data från Sveriges radios program som sänds nu och fram till midnatt*/
 function generateProgramsInfo(arr) {
-    parentProgramsInfo.innerHTML = ""
-    const fragment = document.createDocumentFragment()
+    parentProgramsInfo.innerHTML = "";
+
+    const fragment = document.createDocumentFragment();
+
     arr.forEach(program => {
         const article = document.createElement("article");
 
@@ -163,7 +169,7 @@ function generateProgramsInfo(arr) {
 
         fragment.appendChild(article);
     })
-    parentProgramsInfo.appendChild(fragment)
+    parentProgramsInfo.appendChild(fragment);
 }
 
 //Funktionen konverter start- sluttider för program på formatet 00:00 och returnera en strängen
@@ -184,4 +190,26 @@ function convertTime(startTime, endTime) {
     const endTimeMins = String(endDate.getMinutes()).padStart(2, "0");
 
     return `Programmtider: ${startTimeHours}:${startTimeMins} - ${endTimeHours}:${endTimeMins}`;
+}
+
+//Funktionen genererar option-element med värdet av en url som är länk till live program och lägger in elementen i select-elementet
+function generatePlayList(arr) {
+
+    if (!Array.isArray(arr)) return
+
+    channelsList.innerHTML = ""; // Radera option-elementen i select
+
+    const fragment = document.createDocumentFragment();
+
+    arr.forEach(channel => {
+        const optionEl = document.createElement("option");
+
+        optionEl.textContent = channel.name; // Nament på kanal
+
+        optionEl.setAttribute("value", channel.liveaudio.url); //Url för ljud i mp3 som spelas just nu
+
+        fragment.appendChild(optionEl);
+    })
+
+    channelsList.appendChild(fragment);
 }
