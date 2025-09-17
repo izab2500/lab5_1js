@@ -14,6 +14,7 @@ const parentLinks = document.querySelector("#mainnavlist")
 const numFromInput = document.querySelector("#numrows")
 const parentProgramsInfo = document.querySelector("#info")
 const channelsList = document.querySelector("#playchannel")
+const radioPlayer = document.querySelector("#radioplayer")
 const playBtn = document.querySelector("#playbutton")
 
 
@@ -195,7 +196,10 @@ function convertTime(startTime, endTime) {
 //Funktionen genererar option-element med värdet av en url som är länk till live program och lägger in elementen i select-elementet
 function generatePlayList(arr) {
 
-    if (!Array.isArray(arr)) return
+    if (!Array.isArray(arr)) {
+        console.error("Argumentet är inte en array")
+        return
+    }
 
     channelsList.innerHTML = ""; // Radera option-elementen i select
 
@@ -213,3 +217,22 @@ function generatePlayList(arr) {
 
     channelsList.appendChild(fragment);
 }
+
+
+//Funktionen extraherar ljudlänk och spelar pågående program för vald kanal
+function playSound() {
+    const urlSound = channelsList.value; // Ljudlänk
+
+    if (!urlSound) {
+        console.error("Ingen giltig ljudlänk vald");
+        return
+    }
+
+    radioPlayer.innerHTML = `
+    <audio controls="true" autoplay="true">
+    <source src=${urlSound} type="audio/mpeg">
+    </audio>
+    `
+}
+
+playBtn.addEventListener("click", playSound);
