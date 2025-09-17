@@ -18,6 +18,18 @@ const radioPlayer = document.querySelector("#radioplayer")
 const playBtn = document.querySelector("#playbutton")
 
 
+//Funktionen laddar ett meddelande när sidan laddas
+function welcomeMessage() {
+    parentProgramsInfo.innerHTML = `
+    <h2>Välkommen!</h2>
+    <p>Om du inte ser din kanal till vänster, justera antalet visade kanaler och klicka på en kanal för att se dagens tablå.</p>
+    <p>För att lyssna på den pågående sändningen: välj en kanal i select boxen längst upp till höger och klicka på "Spela".</p>
+    <p>Vi önskar dig en trevlig lyssningsupplevelse!</p>
+    `;
+}
+
+welcomeMessage()
+
 /*Funktionen anropas när sidan laddas, för att ladda 10st data objekt i en array från Sveriges Radios api. Därefter anropas funktionen
 med change event och data hämtas beroende på det valda värdet från input #numrows.*/
 async function getChannels(evt = null) {
@@ -63,7 +75,8 @@ numFromInput.addEventListener("change", debounce(getChannels, 500));
 li-element med titel attribut, a-element med href attribut och placerar element i DOM*/
 function generateChannelsLinks(arr) {
     if (!Array.isArray(arr)) {
-        throw new Error("Datan måste vara en array med korrekt innehåll!");
+        console.error("Datan måste vara en array med korrekt innehåll!");
+        return
     }
 
     parentLinks.innerHTML = "";  // Rensa ols li-element
@@ -145,6 +158,12 @@ async function getProgramsNowToMidnight(link) {
 /*Funktionen tar programdata från Sveriges radio som en array, skapar för varje iteration ett article-element,
 med barn-element som inkluderar data från Sveriges radios program som sänds nu och fram till midnatt*/
 function generateProgramsInfo(arr) {
+
+    if (!Array.isArray(arr)) {
+        console.error("Argumentet är inte en array")
+        return
+    }
+
     parentProgramsInfo.innerHTML = "";
 
     const fragment = document.createDocumentFragment();
@@ -236,3 +255,4 @@ function playSound() {
 }
 
 playBtn.addEventListener("click", playSound);
+
