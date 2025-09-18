@@ -38,4 +38,5 @@ Utgå från en färdig HTML- och CSS-fil, samt en tom main.js, och implementera 
 - Sveriges Radios API
 
 
-
+## 🟡 Klona repo
+git clone https://github.com/izab2500/lab5_1js.git
