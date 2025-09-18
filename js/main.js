@@ -1,21 +1,36 @@
-// Denna fil ska innehålla din lösning till uppgiften (moment 5).
-
 "use strict";
 
-/*  Delar till ej obligatorisk funktionalitet, som kan ge poäng för högre betyg
-*   Radera rader för funktioner du vill visa på webbsidan. */
-//document.getElementById("player").style.display = "none";      // Radera denna rad för att visa musikspelare
-//document.getElementById("shownumrows").style.display = "none"; // Radera denna rad för att visa antal träffar
-
-/* Här under börjar du skriva din JavaScript-kod */
-
-//DOM 
+//DOM- element
 const parentLinks = document.querySelector("#mainnavlist")
 const numFromInput = document.querySelector("#numrows")
 const parentProgramsInfo = document.querySelector("#info")
 const channelsList = document.querySelector("#playchannel")
 const radioPlayer = document.querySelector("#radioplayer")
 const playBtn = document.querySelector("#playbutton")
+
+//Funktionen anropas när sidan laddas för att skapa ett audio-element, sätter in det i #radioplayer, hamnar i DOM och gömmer audio-elementet.
+function addAudioElToDom() {
+
+    const audioEl = document.createElement("audio");
+    audioEl.setAttribute("controls", "true");
+    audioEl.setAttribute("autoplay", "true");
+
+    const sourceEl = document.createElement("source")
+    sourceEl.setAttribute("src", "")
+    sourceEl.setAttribute("type", "audio/mpeg")
+
+    audioEl.appendChild(sourceEl)
+
+    radioPlayer.appendChild(audioEl)
+
+    audioEl.style.display = "none"
+}
+
+addAudioElToDom()
+
+//DOM audio-element
+const audioEl = document.querySelector("audio")
+
 
 
 //Funktionen laddar ett meddelande när sidan laddas
@@ -29,6 +44,7 @@ function welcomeMessage() {
 }
 
 welcomeMessage()
+
 
 /*Funktionen anropas när sidan laddas, för att ladda 10st data objekt i en array från Sveriges Radios api. Därefter anropas funktionen
 med change event och data hämtas beroende på det valda värdet från input #numrows.*/
@@ -114,8 +130,9 @@ async function getLink(evt) {
 
     if (target.tagName !== "A") return
 
-    const programsArr = await getProgramsNowToMidnight(target.href)
-    generateProgramsInfo(programsArr)
+    const programsArr = await getProgramsNowToMidnight(target.href);
+
+    generateProgramsInfo(programsArr);
 }
 
 parentLinks.addEventListener("click", getLink);
@@ -160,7 +177,7 @@ med barn-element som inkluderar data från Sveriges radios program som sänds nu
 function generateProgramsInfo(arr) {
 
     if (!Array.isArray(arr)) {
-        console.error("Argumentet är inte en array")
+        console.error("Argumentet är inte en array");
         return
     }
 
@@ -216,7 +233,7 @@ function convertTime(startTime, endTime) {
 function generatePlayList(arr) {
 
     if (!Array.isArray(arr)) {
-        console.error("Argumentet är inte en array")
+        console.error("Argumentet är inte en array");
         return
     }
 
@@ -238,7 +255,9 @@ function generatePlayList(arr) {
 }
 
 
-//Funktionen extraherar ljudlänk och spelar pågående program för vald kanal
+
+/* Funktionen hämtar ljudlänken för den valda kanalen, visar spelaren,
+   och ser till att webbläsaren laddar och börjar spela det pågående programmet */
 function playSound() {
     const urlSound = channelsList.value; // Ljudlänk
 
@@ -247,11 +266,10 @@ function playSound() {
         return
     }
 
-    radioPlayer.innerHTML = `
-    <audio controls="true" autoplay="true">
-    <source src=${urlSound} type="audio/mpeg">
-    </audio>
-    `
+    audioEl.style.display = "inline-block";
+    audioEl.firstElementChild.setAttribute("src", urlSound);
+
+    audioEl.load(); //Laddar ljudlänk för att spela den
 }
 
 playBtn.addEventListener("click", playSound);
