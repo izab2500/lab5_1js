@@ -55,7 +55,7 @@ async function getChannels(evt = null) {
     const numOfChannels = evt?.target.value || 10;
 
     try {
-        const res = await fetch(`http://api.sr.se/api/v2/channels?format=json&size=${numOfChannels}`);
+        const res = await fetch(`https://api.sr.se/api/v2/channels?format=json&size=${numOfChannels}`);
 
         if (!res.ok) throw new Error(`Något gick fel vid HTTP anropet ${res.status}`)
 
