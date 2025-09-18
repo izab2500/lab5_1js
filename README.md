@@ -1,8 +1,5 @@
 # Labbgrund till Moment 5 i kursen DT084G, Introduktion till programmering i JavaScript
 
-## 👤 Skapad av
-
-Ziad Adeleo, ziba2500.
 
 ## 📝 Uppgift
 
