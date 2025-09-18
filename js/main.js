@@ -235,7 +235,7 @@ function convertTime(startTime, endTime) {
     const endTimeHours = String(endDate.getHours()).padStart(2, "0");
     const endTimeMins = String(endDate.getMinutes()).padStart(2, "0");
 
-    return `Programmtider: ${startTimeHours}:${startTimeMins} - ${endTimeHours}:${endTimeMins}`;
+    return `Programtider: ${startTimeHours}:${startTimeMins} - ${endTimeHours}:${endTimeMins}`;
 }
 
 /*Funktionen genererar option-element med värdet av en url som är länk till liveprogram 
