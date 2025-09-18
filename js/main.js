@@ -8,7 +8,8 @@ const channelsList = document.querySelector("#playchannel")
 const radioPlayer = document.querySelector("#radioplayer")
 const playBtn = document.querySelector("#playbutton")
 
-//Funktionen anropas när sidan laddas för att skapa ett audio-element, sätter in det i #radioplayer, hamnar i DOM och gömmer audio-elementet.
+/*Funktionen anropas när sidan laddas för att skapa ett audio-element, sätter in det i #radioplayer, 
+hamnar i DOM och gömmer audio-elementet.*/
 function addAudioElToDom() {
 
     const audioEl = document.createElement("audio");
@@ -28,13 +29,14 @@ function addAudioElToDom() {
 
 addAudioElToDom()
 
-//DOM audio-element
+//DOM referens till audio-element
 const audioEl = document.querySelector("audio")
 
 
 
-//Funktionen laddar ett meddelande när sidan laddas
+//Funktionen laddar ett välkomstmeddelande när sidan laddas
 function welcomeMessage() {
+
     parentProgramsInfo.innerHTML = `
     <h2>Välkommen!</h2>
     <p>Om du inte ser din kanal till vänster, justera antalet visade kanaler och klicka på en kanal för att se dagens tablå.</p>
@@ -46,8 +48,8 @@ function welcomeMessage() {
 welcomeMessage()
 
 
-/*Funktionen anropas när sidan laddas, för att ladda 10st data objekt i en array från Sveriges Radios api. Därefter anropas funktionen
-med change event och data hämtas beroende på det valda värdet från input #numrows.*/
+/*Funktionen anropas när sidan laddas, för att ladda 10st data objekt i en array från Sveriges Radios api. 
+Därefter anropas funktionen med change event och data hämtas beroende på det valda värdet från input #numrows.*/
 async function getChannels(evt = null) {
 
     const numOfChannels = evt?.target.value || 10;
@@ -63,20 +65,21 @@ async function getChannels(evt = null) {
 
         generateChannelsLinks(channelsArr); //Genererar li-taggar med title attribute och länkar
 
-        generatePlayList(channelsArr) //Genererar option-element med värdet av en url - ljud
+        generatePlayList(channelsArr); //Genererar option-element med värdet av en url - ljud
 
 
     } catch (err) {
-        console.error(`Det gick inte att hämta kanaler ${err} `);
+        console.error(err.message);
     }
 }
 
-//Anropa när sida laddas med default parametern null
 getChannels();
 
 // Funktionen skjuter fram anropet på getChannels funtkionen med 500ms, när change eventet triggas
 function debounce(func, delay) {
+
     let debounceTimer;
+
     return function (...args) {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => func.apply(this, args), delay);
@@ -84,12 +87,12 @@ function debounce(func, delay) {
 }
 //Källa: https://www.freecodecamp.org/news/javascript-debounce-example/
 
-//Anropa funktion när värdet ändras
 numFromInput.addEventListener("change", debounce(getChannels, 500));
 
 /*Funktionen kontrollerar om argumentet är en array, rensar föregående li-element i #mainnavlist och genererar
 li-element med titel attribut, a-element med href attribut och placerar element i DOM*/
 function generateChannelsLinks(arr) {
+
     if (!Array.isArray(arr)) {
         console.error("Datan måste vara en array med korrekt innehåll!");
         return
@@ -124,15 +127,16 @@ function generateChannelsLinks(arr) {
 /* Funktionen triggas vid klick på länk och extraherar href-attributets värdet. Anropar två funktioner
 där getProgramsNowToMidnight filterar programdata och den andra generera programinfo till gränsnittet.*/
 async function getLink(evt) {
-    evt.preventDefault();
+
+    evt.preventDefault(); //Stoppa länk för att aktiveras
 
     const target = evt.target;
 
     if (target.tagName !== "A") return
 
-    const programsArr = await getProgramsNowToMidnight(target.href);
+    const programsArr = await getProgramsNowToMidnight(target.href); //Filtrera programdata
 
-    generateProgramsInfo(programsArr);
+    generateProgramsInfo(programsArr); //Generera programinfo 
 }
 
 parentLinks.addEventListener("click", getLink);
@@ -142,6 +146,7 @@ parentLinks.addEventListener("click", getLink);
 Sedan hämtas data från Sverige Radio, där data är program. Ett filter appliceras på data för att
 endast returnera program som är i intervallet nutid upp till midnatt. Programen returneras. */
 async function getProgramsNowToMidnight(link) {
+
     //Dagens datum och tid
     const now = new Date();
     // Tid nu i millisekunder
@@ -162,11 +167,14 @@ async function getProgramsNowToMidnight(link) {
 
         const programs = programArr.filter(program => {
             const startTimeMilliSec = Number(program.starttimeutc.replace(/\D/g, ""));
+
             // Bara program som startar nu och fram till midnatt
             if (startTimeMilliSec >= nowMilliSec && startTimeMilliSec <= endOfDayMilliSec) return true
 
         });
+
         return programs
+
     } catch (err) {
         console.error(err);
     }
@@ -211,6 +219,7 @@ function generateProgramsInfo(arr) {
 
 //Funktionen konverter start- sluttider för program på formatet 00:00 och returnera en strängen
 function convertTime(startTime, endTime) {
+
     // Extrahera millisekunder för start- och sluttid
     const startTimeMilliSec = startTime.replace(/\D/g, "");
     const endTimeMilliSec = endTime.replace(/\D/g, "");
@@ -229,7 +238,8 @@ function convertTime(startTime, endTime) {
     return `Programmtider: ${startTimeHours}:${startTimeMins} - ${endTimeHours}:${endTimeMins}`;
 }
 
-//Funktionen genererar option-element med värdet av en url som är länk till live program och lägger in elementen i select-elementet
+/*Funktionen genererar option-element med värdet av en url som är länk till liveprogram 
+och lägger in elementen i select-elementet*/
 function generatePlayList(arr) {
 
     if (!Array.isArray(arr)) {
@@ -237,14 +247,14 @@ function generatePlayList(arr) {
         return
     }
 
-    channelsList.innerHTML = ""; // Radera option-elementen i select
+    channelsList.innerHTML = ""; // Radera option-element i select
 
     const fragment = document.createDocumentFragment();
 
     arr.forEach(channel => {
         const optionEl = document.createElement("option");
 
-        optionEl.textContent = channel.name; // Nament på kanal
+        optionEl.textContent = channel.name; // Namn på kanal
 
         optionEl.setAttribute("value", channel.liveaudio.url); //Url för ljud i mp3 som spelas just nu
 
